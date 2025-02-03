@@ -681,9 +681,25 @@ procdump(void)
     printf("\n");
   }
 }
-uint64 spoon(void *arg)
+uint64
+spoon(void *arg)
 {
   // Add your code here...
   printf("In spoon system call with argument %p\n", arg);
+  return 0;
+}
+//Threads 
+uint64
+create_thread(int *tid,void *(*func)(void*),void *arg)
+{
+  printf("create_thread called with arguments: tid[%p], func[%p], arg[%p]\n", tid,func,arg);
+  printf("This call has not been implemented yet!\n");
+  return 0;
+}
+uint64 
+collect_thread(int tid)
+{
+  printf("collect_thread called with argument: tid[%d]\n", tid);
+  printf("This call has not been implemented yet!\n");
   return 0;
 }

@@ -96,3 +96,20 @@ sys_spoon(void)
   argaddr(0, &addr);
   return spoon((void*)addr);
 }
+//Threads
+uint64
+sys_create_thread(void)
+{
+  uint64 tid, func, arg;
+  argaddr(0, &tid);  
+  argaddr(1, &func); 
+  argaddr(2, &arg);
+  return create_thread((int*)tid,(void*(*)(void*))func,(void*)arg);
+}
+uint64
+sys_collect_thread(void)
+{
+  uint64 tid;
+  argaddr(0, &tid);
+  return collect_thread((int)tid);
+}
