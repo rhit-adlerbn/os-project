@@ -1,0 +1,79 @@
+---
+title: Project Milestone 2
+Author(s): Nathan Adler and Sam Cox
+Date: 2/13/25
+---
+
+High level description
+======================
+
+Our project goal is to implement light-weight pthread-like threads into the xv6 operating system.
+These threads will share the same process adress space but have their own registers, stack, and scheduling.
+
+Features included:
+
+- Thread Creation: Creation of threads that will start running a provided function with 'create_thread(func,args)'
+- Thread Exiting: Threads will exit when told with 'thread_exit()'
+- Stack Separation: Each thread will have its own independant memory space in the stack
+- Thread Tests: Code to verify and demonstrate the new thread api
+
+
+Thread creation
+================
+System Call 'sys_create_thread'
+- int* tid: A uninitialized pointer to newly created thread's id
+- void* (*function)(void*): A function pointer where the new thread should exectute
+- void* arguments: A pointer to the arguments passed to the function
+
+User API 'create_thread'
+- void* (*function)(void*): The function to run
+- void* arguments: The function arguments
+- returns: An int* to the newly created thread's id
+
+Notes:
+1. Arguments can be passed as a single value, list or struct and the user is responsible for managing them
+2. Users must point the argument pointer to the return value before calling 'thread_exit' and retrieve it from
+the pointer
+
+Struct proc changes:
+int is_thread: flag to indicate if a proc is a thread (1) or not (0)
+int tid: the thread's id
+struct proc *parent: already present, will track the thread's parent process
+void* stack: a pointer to the newly allocated thread's stack
+SIBILING THREADS????????
+
+The epc register in the thread's trapframe will be set to the function pointer argument
+and the a0 register will be set to the adress of the arguments pointer. This will result 
+in the thread running the provided function with the provided arguments.
+
+Stack separation
+================
+
+To achieve stack separation with the new threads, each thread will allocate and store
+the location of a stack for it to use inside the system call within the kernel.
+
+Creation of the stack in the kernel will allow the os to control the size and ensure validity of the stack.
+
+
+Test cases
+===========
+
+- Describe the test case you used for the creation of the threads.
+
+The following test cases will be written to test behavior of thread creation
+1. simple_thread: test creating one thread with no args
+2. thread_with_arg: test creating threads with single arg
+3. thread_with_args: test creating threads with mutliple args
+4. multiple_threads: test creating multiple threads
+5. multiple_funcs: test creating mutiple threads with different functions to execute
+
+Addition comments
+==================
+
+Current Questions:
+- Why do we need to keep track of threads siblings, how would we do that?
+- 
+
+
+Add any addition comments, questions, or design decisions that you are
+considering for the final submission.
