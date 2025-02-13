@@ -71,6 +71,8 @@ The following test cases will be written to test behavior of thread creation
 Addition comments
 ==================
 
+Thread IDs are implemented from a global register, and a lock must be held when tids are modified
+
 Current Questions:
 - Why do we need to keep track of threads siblings, how would we do that?
 - 
