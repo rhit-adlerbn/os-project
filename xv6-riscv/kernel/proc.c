@@ -13,7 +13,9 @@ struct proc proc[NPROC];
 struct proc *initproc;
 
 int nextpid = 1;
+int nexttid = 1;
 struct spinlock pid_lock;
+struct spinlock tid_lock;
 
 extern void forkret(void);
 static void freeproc(struct proc *p);
@@ -48,8 +50,9 @@ void
 procinit(void)
 {
   struct proc *p;
-  
+ 
   initlock(&pid_lock, "nextpid");
+  initlock(&tid_lock, "nexttid");
   initlock(&wait_lock, "wait_lock");
   for(p = proc; p < &proc[NPROC]; p++) {
       initlock(&p->lock, "proc");
@@ -694,6 +697,63 @@ create_thread(int *tid,void *(*func)(void*),void *arg)
 {
   printf("create_thread called with arguments: tid[%p], func[%p], arg[%p]\n", tid,func,arg);
   printf("This call has not been implemented yet!\n");
+  int i,pid;
+  struct proc *thread; //new thread
+  struct proc *parent = myproc(); //parent proc (current proc)
+
+  // Allocate process for new thread
+  if((thread = allocproc()) == 0){
+    return -1;
+  }
+  
+  // Copy user memory from parent to new thread (CHANGE LATER)
+  if(uvmcopy(parent->pagetable, thread->pagetable, parent->sz) < 0){
+    freeproc(thread);
+    release(&thread->lock);
+    return -1;
+  }
+  thread->sz = parent->sz;
+  
+  // increment reference counts on open file descriptors.
+  for(i = 0; i < NOFILE; i++)
+    if(parent->ofile[i])
+      thread->ofile[i] = filedup(parent->ofile[i]);
+  thread->cwd = idup(parent->cwd);
+
+
+  // Initialize Thread
+  acquire(&tid_lock); //Lock,set and increment tid
+  thread->tid = nexttid++;
+  *tid = thread->tid; // Set return value
+  release(&tid_lock);
+  thread->is_thread = 1; // This is a thread
+  thread->trapframe->a0 = (uint64) arg; // Set a0 to arguments
+  thread->trapframe->epc = (uint64) func; // Set pc to function being run
+  thread->stack = kalloc(); // Allocate and set new thread stack
+  if(thread->stack == 0){
+      freeproc(thread);
+      return -1;
+  }
+
+  safestrcpy(thread->name, parent->name, sizeof(parent->name));
+
+  pid = thread->pid;
+
+  release(&thread->lock);
+
+  acquire(&wait_lock);
+  thread->parent = parent;
+  release(&wait_lock);
+
+  acquire(&thread->lock);
+  thread->state = RUNNABLE;
+  release(&thread->lock);
+
+  return pid;
+  // end fork 
+  
+  
+  
   return 0;
 }
 uint64 

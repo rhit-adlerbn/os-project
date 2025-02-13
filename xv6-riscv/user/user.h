@@ -24,7 +24,7 @@ int sleep(int);
 int uptime(void);
 int spoon(void*);
 // thread calls
-int create_thread(int *tid, void * (*func)(void*),void *arg);
+int create_thread(int* tid,void * (*func)(void*),void *arg);
 int collect_thread(int tid);
 
 

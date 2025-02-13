@@ -42,6 +42,7 @@ struct proc *parent: already present, will track the thread's parent process
 void* stack: a pointer to the newly allocated thread's stack
 SIBILING THREADS????????
 
+
 The epc register in the thread's trapframe will be set to the function pointer argument
 and the a0 register will be set to the adress of the arguments pointer. This will result 
 in the thread running the provided function with the provided arguments.
