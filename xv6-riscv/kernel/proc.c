@@ -696,11 +696,10 @@ uint64
 create_thread(int *tid,void *(*func)(void*),void *arg)
 {
   printf("create_thread called with arguments: tid[%p], func[%p], arg[%p]\n", tid,func,arg);
-  printf("This call has not been implemented yet!\n");
-  int i,pid;
+  int i;
   struct proc *thread; //new thread
   struct proc *parent = myproc(); //parent proc (current proc)
-
+  
   // Allocate process for new thread
   if((thread = allocproc()) == 0){
     return -1;
@@ -720,25 +719,37 @@ create_thread(int *tid,void *(*func)(void*),void *arg)
       thread->ofile[i] = filedup(parent->ofile[i]);
   thread->cwd = idup(parent->cwd);
 
-
   // Initialize Thread
   acquire(&tid_lock); //Lock,set and increment tid
   thread->tid = nexttid++;
-  *tid = thread->tid; // Set return value
+  if (copyout(thread->pagetable, (uint64)tid, (char *)&thread->tid, sizeof(int)) < 0) {
+    freeproc(thread);
+    return -1;
+  }
   release(&tid_lock);
   thread->is_thread = 1; // This is a thread
+  memset(thread->trapframe, 0, sizeof(*thread->trapframe));
   thread->trapframe->a0 = (uint64) arg; // Set a0 to arguments
   thread->trapframe->epc = (uint64) func; // Set pc to function being run
-  thread->stack = kalloc(); // Allocate and set new thread stack
-  if(thread->stack == 0){
+  
+  //Stack
+  char* stack = kalloc(); //allocate
+  if (stack == 0) {
       freeproc(thread);
+      printf("Failed to create stack");
       return -1;
   }
-
+  //Map stack to relevant pagetables 
+  if(mappages(thread->pagetable, (uint64)thread->sz, PGSIZE,(uint64)stack, PTE_W | PTE_R) < 0){
+    kfree(stack);
+    freeproc(thread);
+    return -1;
+  }
+  thread->sz+=PGSIZE;
+  thread->trapframe->sp = thread->sz;
+  
   safestrcpy(thread->name, parent->name, sizeof(parent->name));
-
-  pid = thread->pid;
-
+  
   release(&thread->lock);
 
   acquire(&wait_lock);
@@ -747,13 +758,8 @@ create_thread(int *tid,void *(*func)(void*),void *arg)
 
   acquire(&thread->lock);
   thread->state = RUNNABLE;
-  release(&thread->lock);
-
-  return pid;
-  // end fork 
-  
-  
-  
+  release(&thread->lock); 
+  printf("created\n"); 
   return 0;
 }
 uint64 

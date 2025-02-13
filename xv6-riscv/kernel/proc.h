@@ -108,5 +108,4 @@ struct proc {
   // for threads
   int is_thread;              //If non-zero, is a thread
   int tid;                    //If non-zero, the id of the thread when using thread api
-  void* stack;                //A pointer to the private stack of the thread
 };
