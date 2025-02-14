@@ -11,6 +11,7 @@ static void* myfunc(void* args){
     printf("Num: %d\n",*num);
     *num *= 2;
     printf("Num being returned: %d\n",*num);
+    exit(0);
     return 0;
 }
 
@@ -22,7 +23,6 @@ int main(int argc, char* argv[]){
     printf("Test 1: \n\n");
     int args = 5;
     int tid = 0;
-    printf("Address of myfunc: %p\n", myfunc); 
     create_thread(&tid,myfunc,(void*)&args);
     sleep(10);
     printf("TID: %d\n",tid);

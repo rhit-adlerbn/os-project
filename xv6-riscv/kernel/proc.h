@@ -94,7 +94,8 @@ struct proc {
   
   // wait_lock must be held when using this:
   struct proc *parent;         // Parent process
-
+  struct proc *child;          // Tracks a child whos sibiling will be the other children
+  struct proc *sibiling;       // Tracks a sibiling who's sibiling will be the previous created thread
   // these are private to the process, so p->lock need not be held.
   uint64 kstack;               // Virtual address of kernel stack
   uint64 sz;                   // Size of process memory (bytes)
@@ -108,4 +109,5 @@ struct proc {
   // for threads
   int is_thread;              //If non-zero, is a thread
   int tid;                    //If non-zero, the id of the thread when using thread api
+
 };

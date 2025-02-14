@@ -740,7 +740,7 @@ create_thread(int *tid,void *(*func)(void*),void *arg)
       return -1;
   }
   //Map stack to relevant pagetables 
-  if(mappages(thread->pagetable, (uint64)thread->sz, PGSIZE,(uint64)stack, PTE_W | PTE_R) < 0){
+  if(mappages(thread->pagetable, (uint64)thread->sz, PGSIZE,(uint64)stack,PTE_U | PTE_W | PTE_R) < 0){
     kfree(stack);
     freeproc(thread);
     return -1;
@@ -754,12 +754,14 @@ create_thread(int *tid,void *(*func)(void*),void *arg)
 
   acquire(&wait_lock);
   thread->parent = parent;
+  //Track sibilings
+  thread->sibiling = parent->child; //Copy sibilings
+  parent->child = thread; // Set new thread as children
   release(&wait_lock);
 
   acquire(&thread->lock);
   thread->state = RUNNABLE;
   release(&thread->lock); 
-  printf("created\n"); 
   return 0;
 }
 uint64 
