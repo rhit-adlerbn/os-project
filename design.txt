@@ -26,6 +26,7 @@ System Call 'sys_create_thread'
 - void* arguments: A pointer to the arguments passed to the function
 
 User API 'create_thread'
+- int* tid: The thread id
 - void* (*function)(void*): The function to run
 - void* arguments: The function arguments
 - returns: An int* to the newly created thread's id
@@ -39,8 +40,9 @@ Struct proc changes:
 int is_thread: flag to indicate if a proc is a thread (1) or not (0)
 int tid: the thread's id
 struct proc *parent: already present, will track the thread's parent process
+struct proc *child: a pointer to the most recently created child
+struct proc *sibiling: a pointer to the thread's last created sibiling
 void* stack: a pointer to the newly allocated thread's stack
-SIBILING THREADS????????
 
 
 The epc register in the thread's trapframe will be set to the function pointer argument
@@ -71,12 +73,5 @@ The following test cases will be written to test behavior of thread creation
 Addition comments
 ==================
 
-Thread IDs are implemented from a global register, and a lock must be held when tids are modified
+Thread IDs are implemented from a global register, and a lock must be held when tids are modified.
 
-Current Questions:
-- Why do we need to keep track of threads siblings, how would we do that?
-- 
-
-
-Add any addition comments, questions, or design decisions that you are
-considering for the final submission.
