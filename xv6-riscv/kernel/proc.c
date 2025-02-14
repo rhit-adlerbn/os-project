@@ -722,6 +722,7 @@ create_thread(int *tid,void *(*func)(void*),void *arg)
   // Initialize Thread
   acquire(&tid_lock); //Lock,set and increment tid
   thread->tid = nexttid++;
+  // Set tid for return
   if (copyout(thread->pagetable, (uint64)tid, (char *)&thread->tid, sizeof(int)) < 0) {
     freeproc(thread);
     return -1;
@@ -739,7 +740,7 @@ create_thread(int *tid,void *(*func)(void*),void *arg)
       printf("Failed to create stack");
       return -1;
   }
-  //Map stack to relevant pagetables 
+  //Map stack
   if(mappages(thread->pagetable, (uint64)thread->sz, PGSIZE,(uint64)stack,PTE_U | PTE_W | PTE_R) < 0){
     kfree(stack);
     freeproc(thread);
@@ -762,7 +763,18 @@ create_thread(int *tid,void *(*func)(void*),void *arg)
   acquire(&thread->lock);
   thread->state = RUNNABLE;
   release(&thread->lock); 
-  return 0;
+  rStarting Thread Tests...
+Test 1:
+
+create_thread called with arguments: tid[0x0000000000003fb8], func[0x0000000000000000], arg[0x0000000000003fbc]
+created
+Inside myfunc
+Num: 5
+Num being returned: 10
+TID: 0
+Num after: 5
+End Test 1
+eturn 0;
 }
 uint64 
 collect_thread(int tid)
