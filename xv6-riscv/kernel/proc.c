@@ -763,19 +763,9 @@ create_thread(int *tid,void *(*func)(void*),void *arg)
   acquire(&thread->lock);
   thread->state = RUNNABLE;
   release(&thread->lock); 
-  rStarting Thread Tests...
-Test 1:
-
-create_thread called with arguments: tid[0x0000000000003fb8], func[0x0000000000000000], arg[0x0000000000003fbc]
-created
-Inside myfunc
-Num: 5
-Num being returned: 10
-TID: 0
-Num after: 5
-End Test 1
-eturn 0;
+  return 0;
 }
+
 uint64 
 collect_thread(int tid)
 {
