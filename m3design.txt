@@ -1,0 +1,56 @@
+---
+title: Project Milestone 3
+Author(s): Nathan Adler and Sam Cox
+Date: 2/21/25
+---
+
+High level description
+======================
+
+In our development so far, we have implemented the creation of lightweight threads that can run concurrently within the xv6 system. Currently these threads do not share memory, and the termination/collection behavior of these threads are still unimplemented which is the focus of this milestone.
+
+
+Thread creation
+================
+
+From our last milestone we have:
+
+System Call 'sys_create_thread'
+- int* tid: A uninitialized pointer to newly created thread's id
+- void* (*function)(void*): A function pointer where the new thread should exectute
+- void* arguments: A pointer to the arguments passed to the function
+
+User API 'create_thread'
+- int* tid: The thread id
+- void* (*function)(void*): The function to run
+- void* arguments: The function arguments
+- returns: An int* to the newly created thread's id
+
+we will need to first modify create in order to share memory between threads instead of copying over. 
+
+
+
+Memory sharing
+===============
+
+Describe how you have implemented the sharing of the address space in this
+milestone, including answers to any questions in the description above.
+
+Test cases
+===========
+
+- Describe the test case you used for the creation of the threads.
+
+- Describe the test case you used for testing shared memory between threads.
+
+Additional comments
+==================
+
+Add any addition comments, questions, or design decisions that you are
+considering for the final submission.
+
+Grade
+======
+
+The grade you believe should be assigned to your group, with some argument as
+to why you chose that grade.

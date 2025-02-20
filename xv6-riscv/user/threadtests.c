@@ -10,6 +10,8 @@ typedef struct multiple_args_container {
   char letter;
 } ma_container;
 
+int* shared_val;
+
 void
 *thread_func1(void *args)
 {
@@ -45,10 +47,9 @@ void
 {
   int tid = *(int*)args;
   printf("Shared val: %d, in thread %d\n",*shared_val,tid);
-  if(tid == 1){
-    printf("Thread %d modifing shared val\n",tid);
-    *shared_val *= *shared_val;
-  }
+  printf("Thread %d modifing shared val\n",tid);
+  *shared_val += 1;
+ 
   sleep(5);
   printf("Exiting thread %d with shared val: %d\n",tid,*shared_val);
   exit(0);
@@ -152,10 +153,10 @@ void multiple_funcs_test(void) {
 }
 void shared_memory_test(void){
   printf("Test 6: Modifing shared memory\n");
-
+  shared_val = malloc(sizeof(int));
   int tids[3];
   for(int i = 0; i<3; i++){
-    create_thread(&tids[i], &thread_func3, &tids[i]);
+    create_thread(&tids[i], &thread_func4, &tids[i]);
     sleep(1);
   }
   printf("Finished test 6\n\n");

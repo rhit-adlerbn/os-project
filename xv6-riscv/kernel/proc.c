@@ -691,6 +691,34 @@ spoon(void *arg)
   printf("In spoon system call with argument %p\n", arg);
   return 0;
 }
+//Modified version of uvm_copy that strictly copies over pagetables, not memory
+uint64
+share_thread_mem(pagetable_t old, pagetable_t new, uint64 sz) {
+  pte_t *pte;
+  uint64 pa, i;
+  uint flags;
+
+  for(i = 0; i < sz; i += PGSIZE){
+    if((pte = walk(old, i, 0)) == 0)
+      panic("uvmcopy: pte should exist");
+    if((*pte & PTE_V) == 0)
+      panic("uvmcopy: page not present");
+
+    //get pa and flags from parent
+    pa = PTE2PA(*pte);
+    flags = PTE_FLAGS(*pte);
+
+    //map pages with pa instead of mem
+    if(mappages(new, i, PGSIZE, pa, flags) != 0){
+      goto err;
+    }
+  }
+  return 0;
+
+  err:
+    uvmunmap(new, 0, i / PGSIZE, 1);
+    return -1;
+}
 //Threads 
 uint64
 create_thread(int *tid,void *(*func)(void*),void *arg)
@@ -703,10 +731,11 @@ create_thread(int *tid,void *(*func)(void*),void *arg)
   // Allocate process for new thread
   if((thread = allocproc()) == 0){
     return -1;
-  }
-  
+  } 
+
   // Copy user memory from parent to new thread (CHANGE LATER)
-  if(uvmcopy(parent->pagetable, thread->pagetable, parent->sz) < 0){
+  // Used to use uvm copy, now uses share_thread_mem defined above
+  if(share_thread_mem(parent->pagetable, thread->pagetable, parent->sz) < 0){
     freeproc(thread);
     release(&thread->lock);
     return -1;
