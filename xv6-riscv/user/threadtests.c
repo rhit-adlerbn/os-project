@@ -40,7 +40,20 @@ void
   exit(0);
   return 0;
 }
-
+void
+*thread_func4(void *args)
+{
+  int tid = *(int*)args;
+  printf("Shared val: %d, in thread %d\n",*shared_val,tid);
+  if(tid == 1){
+    printf("Thread %d modifing shared val\n",tid);
+    *shared_val *= *shared_val;
+  }
+  sleep(5);
+  printf("Exiting thread %d with shared val: %d\n",tid,*shared_val);
+  exit(0);
+  return 0;
+}
 //simple_thread: test one thread creation with no args
 void simple_thread_test(void) {
   
@@ -137,7 +150,16 @@ void multiple_funcs_test(void) {
   printf("Finished Test 5\n\n");
 
 }
+void shared_memory_test(void){
+  printf("Test 6: Modifing shared memory\n");
 
+  int tids[3];
+  for(int i = 0; i<3; i++){
+    create_thread(&tids[i], &thread_func3, &tids[i]);
+    sleep(1);
+  }
+  printf("Finished test 6\n\n");
+}
 int main(int argc, char* argv[]) {
     printf("Starting Thread Tests...\n");
 
@@ -150,7 +172,8 @@ int main(int argc, char* argv[]) {
     multiple_threads();
     sleep(1);
     multiple_funcs_test();
-
+    sleep(1);
+    shared_memory_test();
     printf("Finished with Thread Tests...\n");
 
     exit(0);
