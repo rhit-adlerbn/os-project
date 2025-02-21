@@ -107,6 +107,7 @@ struct proc {
   char name[16];               // Process name (debugging)
   
   // for threads
+  int is_alive;               //If non-zero, thread has not exited
   int is_thread;              //If non-zero, is a thread
   int tid;                    //If non-zero, the id of the thread when using thread api
 

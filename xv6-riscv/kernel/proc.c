@@ -723,7 +723,6 @@ share_thread_mem(pagetable_t old, pagetable_t new, uint64 sz) {
 uint64
 create_thread(int *tid,void *(*func)(void*),void *arg)
 {
-  printf("create_thread called with arguments: tid[%p], func[%p], arg[%p]\n", tid,func,arg);
   int i;
   struct proc *thread; //new thread
   struct proc *parent = myproc(); //parent proc (current proc)
@@ -757,6 +756,7 @@ create_thread(int *tid,void *(*func)(void*),void *arg)
     return -1;
   }
   release(&tid_lock);
+  thread->is_alive = 1; //For tracking exit/join
   thread->is_thread = 1; // This is a thread
   memset(thread->trapframe, 0, sizeof(*thread->trapframe));
   thread->trapframe->a0 = (uint64) arg; // Set a0 to arguments
@@ -801,4 +801,47 @@ collect_thread(int tid)
   printf("collect_thread called with argument: tid[%d]\n", tid);
   printf("This call has not been implemented yet!\n");
   return 0;
+}
+uint64
+exit_thread()
+{
+  struct proc *thread = myproc(); 
+  printf("Exiting thread %d\n",thread->tid);
+  thread->is_alive = 0;
+  
+  if(thread == initproc)
+    panic("init exiting");
+
+  // Close all open files.
+  for(int fd = 0; fd < NOFILE; fd++){
+    if(thread->ofile[fd]){
+      struct file *f = thread->ofile[fd];
+      fileclose(f);
+      thread->ofile[fd] = 0;
+    }
+  }
+
+  begin_op();
+  iput(thread->cwd);
+  end_op();
+  thread->cwd = 0;
+
+  acquire(&wait_lock);
+
+  // Give any children to init.
+  //reparent(thread);
+
+  // Parent might be sleeping in wait().
+  wakeup(thread->parent);
+  
+  acquire(&thread->lock);
+
+  //thread->xstate = status;
+  thread->state = ZOMBIE;
+
+  release(&wait_lock);
+
+  // Jump into the scheduler, never to return.
+  sched();
+  panic("zombie exit"); 
 }

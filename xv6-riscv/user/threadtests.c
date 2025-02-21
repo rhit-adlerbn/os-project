@@ -17,7 +17,7 @@ void
 {
   printf("Hello World! from thread!\n");
   
-  exit(0);
+  exit_thread();
   return 0;
 }
 

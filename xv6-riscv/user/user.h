@@ -26,7 +26,7 @@ int spoon(void*);
 // thread calls
 int create_thread(int* tid,void * (*func)(void*),void *arg);
 int collect_thread(int tid);
-
+int exit_thread(void);
 
 // ulib.c
 int stat(const char*, struct stat*);

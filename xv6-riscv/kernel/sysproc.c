@@ -113,3 +113,8 @@ sys_collect_thread(void)
   argaddr(0, &tid);
   return collect_thread((int)tid);
 }
+uint64
+sys_exit_thread(void)
+{
+  return exit_thread();
+}

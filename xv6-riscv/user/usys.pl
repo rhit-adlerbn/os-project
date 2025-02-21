@@ -39,3 +39,4 @@ entry("uptime");
 entry("spoon");
 entry("create_thread");
 entry("collect_thread");
+entry("exit_thread");

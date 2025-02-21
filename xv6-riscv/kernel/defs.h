@@ -110,7 +110,7 @@ uint64          spoon(void*);
 // threads
 uint64          create_thread(int *tid, void * (*func)(void*),void *arg);
 uint64          collect_thread(int tid);
-
+uint64          exit_thread(void);
 // swtch.S
 void            swtch(struct context*, struct context*);
 
