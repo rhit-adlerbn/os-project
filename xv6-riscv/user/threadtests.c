@@ -10,7 +10,7 @@ typedef struct multiple_args_container {
   char letter;
 } ma_container;
 
-int* shared_val;
+int* my_int;
 
 void
 *thread_func1(void *args)
@@ -27,7 +27,7 @@ void
   int *tidPtr = (int *)args;
   printf("Hello World! from thread %d!\n", *tidPtr);
 
-  exit(0);
+  exit_thread();
   return 0;
 }
 
@@ -46,13 +46,21 @@ void
 *thread_func4(void *args)
 {
   int tid = *(int*)args;
-  printf("Shared val: %d, in thread %d\n",*shared_val,tid);
-  printf("Thread %d modifing shared val\n",tid);
-  *shared_val += 1;
- 
-  sleep(5);
-  printf("Exiting thread %d with shared val: %d\n",tid,*shared_val);
+  printf("Shared value: %d, in thread %d\n",*my_int,tid);
+  printf("Thread %d modifing shared value\n",tid);
+  *my_int += 1;
+  printf("Exiting thread %d with shared value: %d\n",tid,*my_int);
   exit(0);
+  return 0;
+}
+void 
+*thread_func5(void *args)
+{
+  int* arg = (int*) args;
+  printf("Changing arg: %d\n", *arg);
+  *arg *= *arg; 
+  printf("New arg: %d\n", *arg);
+  exit_thread();
   return 0;
 }
 //simple_thread: test one thread creation with no args
@@ -153,13 +161,27 @@ void multiple_funcs_test(void) {
 }
 void shared_memory_test(void){
   printf("Test 6: Modifing shared memory\n");
-  shared_val = malloc(sizeof(int));
+  my_int = malloc(sizeof(int));
   int tids[3];
   for(int i = 0; i<3; i++){
     create_thread(&tids[i], &thread_func4, &tids[i]);
     sleep(1);
   }
+  for(int i = 0; i<3; i++){
+    //collect_thread(tid[i]);
+  }
+  sleep(1);
   printf("Finished test 6\n\n");
+}
+void return_value_test(void){
+  printf("Test 7: Checking return values\n");
+  int tid;
+  int change_me = 5;
+  create_thread(&tid, &thread_func5,(void *) &change_me);
+  sleep(1);
+  //collect_thread(tid);
+  
+  printf("Changed value: %d\n",change_me);
 }
 int main(int argc, char* argv[]) {
     printf("Starting Thread Tests...\n");
@@ -175,6 +197,8 @@ int main(int argc, char* argv[]) {
     multiple_funcs_test();
     sleep(1);
     shared_memory_test();
+    sleep(3);
+    return_value_test();
     printf("Finished with Thread Tests...\n");
 
     exit(0);
